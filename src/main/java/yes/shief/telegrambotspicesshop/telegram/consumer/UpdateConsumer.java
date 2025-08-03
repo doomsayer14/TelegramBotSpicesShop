@@ -11,8 +11,10 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -42,6 +44,12 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
 
             if (Objects.equals(messageText, "/start")) {
                 sendMainMenu(chatId);
+            } else if (Objects.equals(messageText, "/keyboard")) {
+                sendReplyKeyboard(chatId);
+            } else if (Objects.equals(messageText, "Привіт")) {
+                sendMyName(chatId, update.getMessage().getFrom());
+            } else if (Objects.equals(messageText, "Зоображення")) {
+                sendPicture(chatId);
             } else {
                 sendMessage(chatId, "Напишіть команду \"/start\".");
             }
@@ -50,6 +58,26 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
         }
 
 
+    }
+
+    private void sendReplyKeyboard(Long chatId) {
+        SendMessage sendMessage = SendMessage.builder()
+                .text("Приклад клавіатури")
+                .chatId(chatId)
+                .build();
+
+        List<KeyboardRow> keyboardRowList = List.of(
+                new KeyboardRow("Привіт", "Зоображення")
+        );
+
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(keyboardRowList);
+        sendMessage.setReplyMarkup(replyKeyboardMarkup);
+
+        try {
+            telegramClient.execute(sendMessage);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void handleCallbackQuery(CallbackQuery callbackQuery) {
@@ -79,15 +107,15 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
     }
 
     private void sendPicture(Long chatId) {
-        sendMessage(chatId,"Зоображення.");
+        sendMessage(chatId, "Зоображення.");
     }
 
     private void sendRandomNum(Long chatId) {
-        sendMessage(chatId,"Номер.");
+        sendMessage(chatId, "Номер.");
     }
 
     private void sendMyName(Long chatId, User user) {
-        sendMessage(chatId,"Вас звуть " + user.getFirstName() + " " + user.getLastName());
+        sendMessage(chatId, "Вас звуть " + user.getFirstName() + " " + user.getLastName());
 
     }
 
