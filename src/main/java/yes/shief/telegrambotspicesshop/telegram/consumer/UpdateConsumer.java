@@ -1,6 +1,5 @@
 package yes.shief.telegrambotspicesshop.telegram.consumer;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -9,7 +8,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import yes.shief.telegrambotspicesshop.entity.Spice;
 import yes.shief.telegrambotspicesshop.service.SpiceService;
 import yes.shief.telegrambotspicesshop.telegram.service.TelegramService;
-import yes.shief.telegrambotspicesshop.telegram.service.impl.TelegramServiceImpl;
 
 import java.util.List;
 import java.util.Optional;

@@ -9,7 +9,6 @@ import yes.shief.telegrambotspicesshop.entity.Spice;
 import yes.shief.telegrambotspicesshop.mapper.SpiceMapper;
 import yes.shief.telegrambotspicesshop.service.SpiceService;
 
-import java.net.URI;
 import java.util.List;
 
 /**

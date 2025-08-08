@@ -25,8 +25,8 @@ public interface SpiceService {
 
     /**
      * Get
-     * @param l
+     * @param spiceId
      * @return
      */
-    Spice getSpiceById(Long l);
+    Spice getSpiceById(Long spiceId);
 }
