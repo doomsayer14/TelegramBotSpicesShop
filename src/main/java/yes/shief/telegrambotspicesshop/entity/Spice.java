@@ -1,6 +1,7 @@
 package yes.shief.telegrambotspicesshop.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -8,6 +9,7 @@ import java.math.BigDecimal;
 @Table(name = "spices")
 @Data
 @Entity
+@Builder
 public class Spice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

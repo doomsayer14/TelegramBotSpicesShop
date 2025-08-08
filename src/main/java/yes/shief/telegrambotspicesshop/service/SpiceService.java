@@ -1,5 +1,6 @@
 package yes.shief.telegrambotspicesshop.service;
 
+import yes.shief.telegrambotspicesshop.dto.SpiceDto;
 import yes.shief.telegrambotspicesshop.entity.Spice;
 
 import java.util.List;
@@ -14,4 +15,18 @@ public interface SpiceService {
      * @return list of all spices.
      */
    List<Spice> getAllSpices();
+
+    /**
+     * Creates new Spice from DTO.
+     * @param spiceDto spice to be created.
+     * @return created spice.
+     */
+    Spice createSpice(SpiceDto spiceDto);
+
+    /**
+     * Get
+     * @param l
+     * @return
+     */
+    Spice getSpiceById(Long l);
 }
