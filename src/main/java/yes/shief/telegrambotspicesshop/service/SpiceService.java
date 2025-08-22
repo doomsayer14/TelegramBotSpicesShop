@@ -24,9 +24,23 @@ public interface SpiceService {
     Spice createSpice(SpiceDto spiceDto);
 
     /**
-     * Get
-     * @param spiceId
-     * @return
+     * Get spice by id.
+     * @param spiceId id of spice to be got.
+     * @return spice with specified id.
      */
     Spice getSpiceById(Long spiceId);
+
+    /**
+     * Updates Spice from DTO.
+     * @param spiceDto spice to be updated.
+     * @return updated spice
+     */
+    Spice updateSpice(SpiceDto spiceDto);
+
+    /**
+     * Deletes spice by id.
+     * @param spiceId id of spice to be deleted.
+     * @return deleted spice.
+     */
+    Spice deleteSpiceById(Long spiceId);
 }

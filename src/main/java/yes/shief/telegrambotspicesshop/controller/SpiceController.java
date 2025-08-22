@@ -47,4 +47,16 @@ public class SpiceController {
         return ResponseEntity.ok(spiceDto);
     }
 
+    @PutMapping("/")
+    public ResponseEntity<SpiceDto> updateSpice(@RequestBody SpiceDto spiceDto) {
+        Spice updatedSpice = spiceService.updateSpice(spiceDto);
+        SpiceDto updatedSpiceDto = spiceMapper.spiceToSpiceDto(updatedSpice);
+        return ResponseEntity.ok(updatedSpiceDto);
+    }
+
+    @DeleteMapping("/{spiceId}")
+    public ResponseEntity<SpiceDto> deleteSpice(@PathVariable String spiceId) {
+        Spice spice = spiceService.deleteSpiceById(Long.parseLong(spiceId));
+        return ResponseEntity.noContent().build();
+    }
 }
