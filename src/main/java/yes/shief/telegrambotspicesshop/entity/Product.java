@@ -5,16 +5,20 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import yes.shief.telegrambotspicesshop.entity.enums.ProductType;
 
 import java.math.BigDecimal;
 
+/**
+ * Entity for any good in shop.
+ */
 @Table(name = "spices")
 @Data
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Spice {
+public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,6 +31,10 @@ public class Spice {
 
     @Column
     private BigDecimal price;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ProductType productType;
 
     /**
      * Spice picture.

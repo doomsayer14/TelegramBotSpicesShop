@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import yes.shief.telegrambotspicesshop.entity.Spice;
-import yes.shief.telegrambotspicesshop.service.SpiceService;
+import yes.shief.telegrambotspicesshop.entity.Product;
+import yes.shief.telegrambotspicesshop.service.ProductService;
 import yes.shief.telegrambotspicesshop.telegram.service.TelegramService;
 
 import java.util.List;
@@ -19,6 +19,8 @@ import java.util.Optional;
 @Slf4j
 @Component
 public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
+
+    //TODO:move all the static text to db.
 
     /**
      * Static text.
@@ -52,7 +54,7 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
 
     private final TelegramService telegramService;
 
-    private final SpiceService spiceService;
+    private final ProductService productService;
 
     /**
      * The list of commands for the bot.
@@ -65,16 +67,16 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
             String messageText = update.getMessage().getText();
             Long chatId = update.getMessage().getChatId();
 
-            List<Spice> spiceList = spiceService.getAllSpices();
+            List<Product> productList = productService.getAllProducts();
 
             //this stream and if-statement checks whether message has a spice name or not
             //TODO: move this logic to SQL.
-            Optional<Spice> optionalSpice = spiceList.stream()
+            Optional<Product> optionalSpice = productList.stream()
                     .filter(spice -> messageText.equalsIgnoreCase(spice.getName()))
                     .findFirst();
             if (optionalSpice.isPresent()) {
-                Spice spice = optionalSpice.get();
-                telegramService.sendSpice(chatId, spice);
+                Product product = optionalSpice.get();
+                telegramService.sendSpice(chatId, product);
             } else {
                 switch (messageText) {
                     case START_COMMAND -> telegramService.sendStartMenu(chatId, START_MESSAGE);

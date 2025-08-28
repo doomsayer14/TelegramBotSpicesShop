@@ -2,11 +2,11 @@ package yes.shief.telegrambotspicesshop.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import yes.shief.telegrambotspicesshop.entity.Spice;
+import yes.shief.telegrambotspicesshop.entity.Product;
 
 /**
- * Repository for {@link Spice}.
+ * Repository for {@link Product}.
  */
 @Repository
-public interface SpiceRepository extends JpaRepository<Spice, Long> {
+public interface ProductRepository extends JpaRepository<Product, Long> {
 }

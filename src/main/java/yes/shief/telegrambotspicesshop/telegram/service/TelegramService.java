@@ -1,14 +1,14 @@
 package yes.shief.telegrambotspicesshop.telegram.service;
 
-import yes.shief.telegrambotspicesshop.entity.Spice;
+import yes.shief.telegrambotspicesshop.entity.Product;
 
 public interface TelegramService {
     /**
      * Sends specified spice to user.
      * @param chatId in which chat this message should be sent.
-     * @param spice spice to be sent.
+     * @param product spice to be sent.
      */
-    void sendSpice(Long chatId, Spice spice);
+    void sendSpice(Long chatId, Product product);
 
     /**
      * Reacts on command "/start".

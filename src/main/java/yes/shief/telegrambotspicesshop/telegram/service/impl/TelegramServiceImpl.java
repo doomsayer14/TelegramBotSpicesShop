@@ -11,8 +11,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
-import yes.shief.telegrambotspicesshop.entity.Spice;
-import yes.shief.telegrambotspicesshop.service.SpiceService;
+import yes.shief.telegrambotspicesshop.entity.Product;
+import yes.shief.telegrambotspicesshop.service.ProductService;
 import yes.shief.telegrambotspicesshop.telegram.service.TelegramService;
 
 import java.io.ByteArrayInputStream;
@@ -35,11 +35,11 @@ public class TelegramServiceImpl implements TelegramService {
 
     private TelegramClient telegramClient;
 
-    private final SpiceService spiceService;
+    private final ProductService productService;
 
 
-    public TelegramServiceImpl(SpiceService spiceService) {
-        this.spiceService = spiceService;
+    public TelegramServiceImpl(ProductService productService) {
+        this.productService = productService;
     }
 
     /**
@@ -51,15 +51,15 @@ public class TelegramServiceImpl implements TelegramService {
     }
 
     @Override
-    public void sendSpice(Long chatId, Spice spice) {
-        InputStream inputStream = new ByteArrayInputStream(spice.getImageBytes());
+    public void sendSpice(Long chatId, Product product) {
+        InputStream inputStream = new ByteArrayInputStream(product.getImageBytes());
 
         SendPhoto sendPhoto = SendPhoto.builder()
                 .chatId(chatId)
                 .photo(new InputFile(inputStream, "spice.jpg"))
-                .caption(spice.getName() + System.lineSeparator() + System.lineSeparator() +
-                        spice.getDescription() + System.lineSeparator() + System.lineSeparator() +
-                        "Ціна - " + spice.getPrice() + " грн.")
+                .caption(product.getName() + System.lineSeparator() + System.lineSeparator() +
+                        product.getDescription() + System.lineSeparator() + System.lineSeparator() +
+                        "Ціна - " + product.getPrice() + " грн.")
                 .build();
 
         executeMessage(sendPhoto);
@@ -86,13 +86,13 @@ public class TelegramServiceImpl implements TelegramService {
 
     public void sendCatalogue(Long chatId) {
 
-        List<Spice> spiceList = spiceService.getAllSpices();
+        List<Product> productList = productService.getAllProducts();
 
         List<KeyboardRow> keyboardRowList = new ArrayList<>();
 
         KeyboardRow keyboardRow = new KeyboardRow();
-        for (int i = 0; i < spiceList.size(); i++) {
-            keyboardRow.add(spiceList.get(i).getName());
+        for (int i = 0; i < productList.size(); i++) {
+            keyboardRow.add(productList.get(i).getName());
             if (i == 3) {
                 keyboardRowList.add(keyboardRow);
                 keyboardRow = new KeyboardRow();
