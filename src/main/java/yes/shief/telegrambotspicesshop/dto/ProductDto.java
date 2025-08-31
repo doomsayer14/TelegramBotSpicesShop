@@ -2,13 +2,12 @@ package yes.shief.telegrambotspicesshop.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import yes.shief.telegrambotspicesshop.entity.Product;
 import yes.shief.telegrambotspicesshop.entity.enums.ProductType;
 
 import java.math.BigDecimal;
 
 /**
- * DTO class for {@link Product}
+ * DTO class for {@link yes.shief.telegrambotspicesshop.entity.Product}
  */
 @Data
 @Builder

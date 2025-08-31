@@ -24,8 +24,8 @@ public class Order {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id", nullable = false)
-    private Customer owner;
+    @JoinColumn(name = "customer", nullable = false)
+    private Customer customer;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
