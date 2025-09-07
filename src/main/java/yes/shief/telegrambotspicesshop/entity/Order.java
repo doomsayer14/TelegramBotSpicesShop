@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Entity for ordering.
  */
-@Table(name = "order")
+@Table(name = "orders")
 @Data
 @Entity
 @Builder

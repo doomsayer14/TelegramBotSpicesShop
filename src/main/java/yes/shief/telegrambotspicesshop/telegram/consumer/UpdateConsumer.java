@@ -30,9 +30,12 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
 
     private static final String START_COMMAND = "/start";
 
-    private static final String START_MESSAGE = "Привіт! Мене звати Ірина Єсьман." + System.lineSeparator() +
-            "Це мій телеграм магазин спецій. Тут ви можете обрати будь-який" +
-            "товар з каталогу за своїм смаком.";
+    private static final String START_MESSAGE = "Привіт! Мене звати Ірина - авторка блогу @iryna_yesman_food, кулінарка, творчиня смаків і засновниця лінійки спецій YESChef \uD83C\uDF3F\n" +
+            "\n" +
+            "Тут усе  про справжні смаки, домашню кухню з характером та натхнення готувати з любов’ю \uD83D\uDC9B\n" +
+            "Я вірю, що спеції можуть більше, ніж просто додати аромату, вони створюють настрій, історії, традиції. Саме тому народився бренд YESChef - натуральні авторські суміші спецій для тих, хто любить готувати смачно, просто і з душею.\n" +
+            "\n" +
+            "Тут ви можете обрати набори спецій, які імпонуватимуть саме вам і чарівний YESChef-бот допоможе ✨";
 
     private static final String CATALOGUE_COMMAND = "Каталог товарів";
 

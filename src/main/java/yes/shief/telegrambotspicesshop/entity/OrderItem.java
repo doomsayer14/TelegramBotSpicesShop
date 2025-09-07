@@ -6,7 +6,7 @@ import lombok.*;
 /**
  * Entity which represents one item of {@link Order}.
  */
-@Table(name = "order_item")
+@Table(name = "order_items")
 @Data
 @Entity
 @Builder

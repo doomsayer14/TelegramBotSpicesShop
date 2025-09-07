@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 /**
  * Entity for any good in shop.
  */
-@Table(name = "spices")
+@Table(name = "products")
 @Data
 @Entity
 @Builder
