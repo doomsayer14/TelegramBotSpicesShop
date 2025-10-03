@@ -70,6 +70,7 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
             String messageText = update.getMessage().getText();
             Long chatId = update.getMessage().getChatId();
 
+
             List<Product> productList = productService.getAllProducts();
 
             //this stream and if-statement checks whether message has a spice name or not
