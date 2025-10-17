@@ -14,7 +14,7 @@ public class ProductMapper {
      * @param product to be mapped to {@link ProductDto}.
      * @return new Dto.
      */
-    public ProductDto spiceToSpiceDto(Product product) {
+    public ProductDto productToProductDto(Product product) {
         return ProductDto.builder()
                 .id(product.getId())
                 .name(product.getName())

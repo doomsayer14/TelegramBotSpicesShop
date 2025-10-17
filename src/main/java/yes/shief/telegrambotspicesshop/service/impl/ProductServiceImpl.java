@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import yes.shief.telegrambotspicesshop.dto.ProductDto;
 import yes.shief.telegrambotspicesshop.entity.Product;
-import yes.shief.telegrambotspicesshop.exception.SpiceNotFoundException;
+import yes.shief.telegrambotspicesshop.exception.ProductNotFoundException;
 import yes.shief.telegrambotspicesshop.repository.ProductRepository;
 import yes.shief.telegrambotspicesshop.service.ProductService;
 
@@ -45,7 +45,7 @@ public class ProductServiceImpl implements ProductService {
     public Product getProductById(Long productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() ->
-                        new SpiceNotFoundException("Spice can't ve found fo id = " + productId));
+                        new ProductNotFoundException("Product can't be found for id = " + productId));
     }
 
     @Override

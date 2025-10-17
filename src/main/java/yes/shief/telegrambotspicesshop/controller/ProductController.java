@@ -26,7 +26,7 @@ public class ProductController {
     public String getAllProducts(Model model) {
         List<ProductDto> products = productService.getAllProducts()
                 .stream()
-                .map(productMapper::spiceToSpiceDto)
+                .map(productMapper::productToProductDto)
                 .toList();
         model.addAttribute("products", products);
         return "products";
@@ -55,7 +55,7 @@ public class ProductController {
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable("id") Long id, Model model) {
         Product product = productService.getProductById(id);
-        ProductDto productDto = productMapper.spiceToSpiceDto(product);
+        ProductDto productDto = productMapper.productToProductDto(product);
         model.addAttribute("product", productDto);
         return "product_form";
     }
@@ -82,7 +82,7 @@ public class ProductController {
     @GetMapping("/{id}")
     public String viewProduct(@PathVariable("id") Long id, Model model) {
         Product product = productService.getProductById(id);
-        ProductDto productDto = productMapper.spiceToSpiceDto(product);
+        ProductDto productDto = productMapper.productToProductDto(product);
         model.addAttribute("product", productDto);
         return "product_view";
     }
