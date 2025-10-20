@@ -1,89 +1,66 @@
 package yes.shief.telegrambotspicesshop.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import yes.shief.telegrambotspicesshop.dto.ProductDto;
 import yes.shief.telegrambotspicesshop.entity.Product;
 import yes.shief.telegrambotspicesshop.mapper.ProductMapper;
 import yes.shief.telegrambotspicesshop.service.ProductService;
 
-import java.io.IOException;
 import java.util.List;
 
-@Controller
+/**
+ * Spices management via HTTP server, crud operations.
+ */
+@RestController
 @RequestMapping("/product")
 @RequiredArgsConstructor
 public class ProductController {
 
     private final ProductService productService;
+
     private final ProductMapper productMapper;
 
-    // --- LIST ---
+    @PostMapping("")
+    public ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDto) {
+        Product product = productService.createProduct(productDto);
+        ProductDto createdSpice = productMapper.productToProductDto(product);
+
+        return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentRequest()
+                        .path("/{productId}")
+                        .buildAndExpand(createdSpice.getId())
+                        .toUri())
+                .body(createdSpice);
+    }
+
     @GetMapping("/")
-    public String getAllProducts(Model model) {
-        List<ProductDto> products = productService.getAllProducts()
+    public ResponseEntity<List<ProductDto>> getAllProducts() {
+        List<ProductDto> productDtoList = productService.getAllProducts()
                 .stream()
                 .map(productMapper::productToProductDto)
                 .toList();
-        model.addAttribute("products", products);
-        return "products";
+        return ResponseEntity.ok(productDtoList);
     }
 
-    // --- CREATE FORM ---
-    @GetMapping("/new")
-    public String showCreateForm(Model model) {
-        model.addAttribute("product", new ProductDto());
-        return "product_form";
-    }
-
-    // --- CREATE ---
-    @PostMapping("")
-    public String createProduct(@ModelAttribute ProductDto productDto,
-                                @RequestParam("imageFile") MultipartFile imageFile) throws IOException {
-
-        if (imageFile != null && !imageFile.isEmpty()) {
-            productDto.setImageBytes(imageFile.getBytes());
-        }
-        Product product = productService.createProduct(productDto);
-        return "redirect:/product/";
-    }
-
-    // --- EDIT FORM ---
-    @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable("id") Long id, Model model) {
-        Product product = productService.getProductById(id);
+    @GetMapping("/{productId}")
+    public ResponseEntity<ProductDto> getProduct(@PathVariable String productId) {
+        Product product = productService.getProductById(Long.parseLong(productId));
         ProductDto productDto = productMapper.productToProductDto(product);
-        model.addAttribute("product", productDto);
-        return "product_form";
+        return ResponseEntity.ok(productDto);
     }
 
-    // --- UPDATE ---
-    @PostMapping(value = "/")
-    public String updateProduct(@ModelAttribute ProductDto productDto,
-                                @RequestParam("imageFile") MultipartFile imageFile) throws IOException {
-        if (imageFile != null && !imageFile.isEmpty()) {
-            productDto.setImageBytes(imageFile.getBytes());
-        }
-        productService.updateProduct(productDto);
-        return "redirect:/product/";
+    @PutMapping("/")
+    public ResponseEntity<ProductDto> updateProduct(@RequestBody ProductDto productDto) {
+        Product updatedProduct = productService.updateProduct(productDto);
+        ProductDto updatedProductDto = productMapper.productToProductDto(updatedProduct);
+        return ResponseEntity.ok(updatedProductDto);
     }
 
-    // --- DELETE ---
-    @PostMapping("/{id}")
-    public String deleteProduct(@PathVariable("id") Long id) {
-        productService.deleteProductById(id);
-        return "redirect:/product/";
-    }
-
-    // --- VIEW ONE ---
-    @GetMapping("/{id}")
-    public String viewProduct(@PathVariable("id") Long id, Model model) {
-        Product product = productService.getProductById(id);
-        ProductDto productDto = productMapper.productToProductDto(product);
-        model.addAttribute("product", productDto);
-        return "product_view";
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<ProductDto> deleteProduct(@PathVariable String productId) {
+        productService.deleteProductById(Long.parseLong(productId));
+        return ResponseEntity.noContent().build();
     }
 }
