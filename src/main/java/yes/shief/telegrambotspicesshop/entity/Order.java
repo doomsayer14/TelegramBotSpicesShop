@@ -39,4 +39,16 @@ public class Order {
 
     @CreatedDate
     private LocalDateTime createdAt;
+
+    //Місто доставки
+    @Column
+    private String city;
+
+    //Відділення нової пошти
+    @Column
+    private Integer novaPoshtaOffice;
+
+    //ФІО отримувача
+    @Column
+    private Integer recipient;
 }

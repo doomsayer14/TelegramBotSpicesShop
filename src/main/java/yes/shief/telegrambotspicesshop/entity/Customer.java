@@ -27,4 +27,7 @@ public class Customer {
 
     @Column
     private String secondName;
+
+    @Column
+    private String username;
 }
