@@ -53,18 +53,39 @@ public class TelegramServiceImpl implements TelegramService {
 
     @Override
     public void sendSpice(Long chatId, Product product) {
-        InputStream inputStream = new ByteArrayInputStream(product.getImageBytes());
+        // общий текст
+        String caption = product.getName()
+                + System.lineSeparator() + System.lineSeparator()
+                + (product.getDescription() != null ? product.getDescription() : "")
+                + System.lineSeparator() + System.lineSeparator()
+                + "Ціна - " + product.getPrice() + " грн.";
 
-        SendPhoto sendPhoto = SendPhoto.builder()
+        byte[] bytes = product.getImageBytes();
+
+        // есть изображение — шлём фото с подписью (ограничение Telegram: 1024 символа в caption)
+        if (bytes != null && bytes.length > 0) {
+            String safeCaption = caption.length() > 1024 ? caption.substring(0, 1021) + "..." : caption;
+
+            InputFile inputFile = new InputFile(new ByteArrayInputStream(bytes), "spice.jpg");
+            SendPhoto sendPhoto = SendPhoto.builder()
+                    .chatId(chatId)
+                    .photo(inputFile)
+                    .caption(safeCaption)
+                    .build();
+
+            executeMessage(sendPhoto);
+            return;
+        }
+
+        // нет изображения — шлём текстовое сообщение (до 4096 символов)
+        SendMessage sendMessage = SendMessage.builder()
                 .chatId(chatId)
-                .photo(new InputFile(inputStream, "spice.jpg"))
-                .caption(product.getName() + System.lineSeparator() + System.lineSeparator() +
-                        product.getDescription() + System.lineSeparator() + System.lineSeparator() +
-                        "Ціна - " + product.getPrice() + " грн.")
+                .text(caption)
                 .build();
 
-        executeMessage(sendPhoto);
+        executeMessage(sendMessage);
     }
+
 
     @Override
     public void sendStartMenu(Long chatId, String message) {
@@ -76,7 +97,7 @@ public class TelegramServiceImpl implements TelegramService {
         List<KeyboardRow> keyboardRowList = List.of(
                 new KeyboardRow(Commands.CATALOGUE_COMMAND),
                 new KeyboardRow(Commands.MY_CART_COMMAND, Commands.TERMS_OF_USE_COMMAND),
-                new KeyboardRow(Commands.TERMS_OF_USE_COMMAND)
+                new KeyboardRow(Commands.ABOUT_ME_COMMAND)
         );
 
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(keyboardRowList);
