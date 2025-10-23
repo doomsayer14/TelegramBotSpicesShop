@@ -64,4 +64,13 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(productId);
         log.info("Deleting product: {}", productId);
     }
+
+    @Override
+    public String getProductNameById(Long productId) {
+        String name = productRepository.findNameById(productId);
+        if (name == null || name.isBlank()) {
+            return "товар";
+        }
+        return name;
+    }
 }

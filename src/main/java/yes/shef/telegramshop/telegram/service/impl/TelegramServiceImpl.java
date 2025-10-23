@@ -1,13 +1,20 @@
 package yes.shef.telegramshop.telegram.service.impl;
 
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -28,6 +35,7 @@ import java.util.List;
 @Service
 public class TelegramServiceImpl implements TelegramService {
 
+    private static final Logger log = LoggerFactory.getLogger(TelegramServiceImpl.class);
     /**
      * Token from BotFather. Don't forget to clean it from application.properties.
      */
@@ -52,39 +60,38 @@ public class TelegramServiceImpl implements TelegramService {
     }
 
     @Override
-    public void sendSpice(Long chatId, Product product) {
-        // общий текст
-        String caption = product.getName()
-                + System.lineSeparator() + System.lineSeparator()
-                + (product.getDescription() != null ? product.getDescription() : "")
-                + System.lineSeparator() + System.lineSeparator()
-                + "Ціна - " + product.getPrice() + " грн.";
+    public void sendProduct(Long chatId, Product product) {
+        sendProduct(chatId, product, 1); // количество по умолчанию = 1
+    }
 
+    public void sendProduct(Long chatId, Product product, int quantity) {
+        String caption = buildCaption(product);
         byte[] bytes = product.getImageBytes();
+        InlineKeyboardMarkup inlineKeyboard = buildQuantityInlineKeyboard(product.getId(), quantity);
 
-        // есть изображение — шлём фото с подписью (ограничение Telegram: 1024 символа в caption)
         if (bytes != null && bytes.length > 0) {
-            String safeCaption = caption.length() > 1024 ? caption.substring(0, 1021) + "..." : caption;
+            InputStream is = new ByteArrayInputStream(bytes);
 
-            InputFile inputFile = new InputFile(new ByteArrayInputStream(bytes), "spice.jpg");
             SendPhoto sendPhoto = SendPhoto.builder()
                     .chatId(chatId)
-                    .photo(inputFile)
-                    .caption(safeCaption)
+                    .photo(new InputFile(is, "product.jpg"))
+                    .caption(caption)
+                    .replyMarkup(inlineKeyboard)
                     .build();
 
             executeMessage(sendPhoto);
             return;
         }
 
-        // нет изображения — шлём текстовое сообщение (до 4096 символов)
         SendMessage sendMessage = SendMessage.builder()
                 .chatId(chatId)
                 .text(caption)
+                .replyMarkup(inlineKeyboard)
                 .build();
 
         executeMessage(sendMessage);
     }
+
 
 
     @Override
@@ -136,6 +143,11 @@ public class TelegramServiceImpl implements TelegramService {
     }
 
     public void sendCart(Long chatId) {
+        SendMessage sendMessage = SendMessage.builder()
+                .text("")
+                .chatId(chatId)
+                .build();
+        executeMessage(sendMessage);
     }
 
     @Override
@@ -148,6 +160,125 @@ public class TelegramServiceImpl implements TelegramService {
         executeMessage(sendMessage);
     }
 
+    public void editProductQuantityMarkup(Long chatId, Integer messageId, Long productId, int quantity) {
+        InlineKeyboardMarkup kb = buildQuantityInlineKeyboard(productId, quantity);
+
+        EditMessageReplyMarkup edit = EditMessageReplyMarkup.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .replyMarkup(kb)
+                .build();
+        try {
+            telegramClient.execute(edit);
+        } catch (org.telegram.telegrambots.meta.exceptions.TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void answerCallback(String callbackId, String text) {
+        AnswerCallbackQuery ans = AnswerCallbackQuery.builder()
+                .callbackQueryId(callbackId)
+                .text(text)
+                .showAlert(false)
+                .build();
+        try {
+            telegramClient.execute(ans);
+        } catch (org.telegram.telegrambots.meta.exceptions.TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * Name, description and price for {@link Product}.
+     * @param product {@link Product} which needs to be described.
+     * @return full text about {@link Product}.
+     */
+    private String buildCaption(Product product) {
+        StringBuilder sb = new StringBuilder();
+
+        // Название
+        if (product.getName() != null) {
+            sb.append(product.getName());
+        } else {
+            sb.append("Товар");
+        }
+        sb.append(System.lineSeparator()).append(System.lineSeparator());
+
+        // Описание
+        if (product.getDescription() != null && !product.getDescription().isBlank()) {
+            sb.append(product.getDescription())
+                    .append(System.lineSeparator())
+                    .append(System.lineSeparator());
+        }
+
+        // Цена
+        sb.append("Ціна - ");
+        if (product.getPrice() != null) {
+            sb.append(product.getPrice());
+        } else {
+            sb.append("—");
+        }
+        sb.append(" грн.");
+
+        String caption = sb.toString();
+        // Telegram ограничивает caption до 1024 символов
+        if (caption.length() > 1024) {
+            caption = caption.substring(0, 1021) + "...";
+        }
+        return caption;
+    }
+
+
+    /**
+     * Builds menu like
+     * ➖ 1 ➕
+     * 🛒 Додати
+     * @param productId {@link Product} which needs keyboard.
+     * @param quantity quantity of {@link Product} to
+     * @return ready inline keyboard.
+     */
+    private InlineKeyboardMarkup buildQuantityInlineKeyboard(Long productId, int quantity) {
+        InlineKeyboardButton minusButton = InlineKeyboardButton.builder()
+                .text("➖")
+                .callbackData("QTY_DEC:" + productId)
+                .build();
+
+        InlineKeyboardButton quantityButton = InlineKeyboardButton.builder()
+                .text(" " + quantity + " ")
+                .callbackData("noop") // просто отображение, без действия
+                .build();
+
+        InlineKeyboardButton plusButton = InlineKeyboardButton.builder()
+                .text("➕")
+                .callbackData("QTY_INC:" + productId)
+                .build();
+
+        InlineKeyboardButton addToCartButton = InlineKeyboardButton.builder()
+                .text("🛒 Додати")
+                .callbackData("ADD_TO_CART:" + productId)
+                .build();
+
+        // Ряд 1: ➖ quantity ➕
+        InlineKeyboardRow row1 = new InlineKeyboardRow();
+        row1.add(minusButton);
+        row1.add(quantityButton);
+        row1.add(plusButton);
+
+        // Ряд 2: 🛒 Додати
+        InlineKeyboardRow row2 = new InlineKeyboardRow();
+        row2.add(addToCartButton);
+
+        // ✅ Вот здесь создаётся rows
+        List<InlineKeyboardRow> rows = new ArrayList<>();
+        rows.add(row1);
+        rows.add(row2);
+
+        return new InlineKeyboardMarkup(rows);
+    }
+
+
+
     /**
      * Sends text reply to user.
      * @param sendMessage reply to a user.
@@ -156,7 +287,7 @@ public class TelegramServiceImpl implements TelegramService {
         try {
             telegramClient.execute(sendMessage);
         } catch (TelegramApiException e) {
-            System.out.println(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 
@@ -168,7 +299,7 @@ public class TelegramServiceImpl implements TelegramService {
         try {
             telegramClient.execute(sendPhoto);
         } catch (TelegramApiException e) {
-            System.out.println(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 }

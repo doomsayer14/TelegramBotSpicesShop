@@ -39,4 +39,6 @@ public final class Commands {
     public static final String GO_TO_MAIN_MENU_MESSAGE = "\uD83E\uDD51";
 
     public static final String CATALOGUE_HEADER_MESSAGE = "Тут ви можете ознайомитись з каталогом товарів⤵️";
+
+    public static final String UNKNOWN_ACTION_MESSAGE = "Невідома дія!";
 }

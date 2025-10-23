@@ -48,4 +48,12 @@ public interface ProductService {
      * @return deleted product.
      */
     void deleteProductById(Long productId);
+
+    /**
+     * Gets product name by id.
+     *
+     * @param productId id of needed product.
+     * @return name of a product.
+     */
+    String getProductNameById(Long productId);
 }

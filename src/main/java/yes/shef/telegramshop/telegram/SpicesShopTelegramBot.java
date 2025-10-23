@@ -1,4 +1,4 @@
-package yes.shef.telegramshop.telegram.longpollingbot;
+package yes.shef.telegramshop.telegram;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
