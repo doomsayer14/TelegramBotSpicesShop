@@ -1,7 +1,9 @@
 package yes.shef.telegramshop.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import yes.shef.telegramshop.dto.OrderDto;
 import yes.shef.telegramshop.entity.Customer;
 import yes.shef.telegramshop.entity.Order;
@@ -10,37 +12,31 @@ import yes.shef.telegramshop.entity.enums.OrderStatus;
 import yes.shef.telegramshop.exception.CustomerNotFoundException;
 import yes.shef.telegramshop.exception.OrderNotFoundException;
 import yes.shef.telegramshop.repository.CustomerRepository;
+import yes.shef.telegramshop.repository.OrderItemRepository;
 import yes.shef.telegramshop.repository.OrderRepository;
-import yes.shef.telegramshop.repository.ProductRepository;
 import yes.shef.telegramshop.service.OrderService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Implementation for {@link OrderService}.
  */
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
-
     private final CustomerRepository customerRepository;
-
-    private final ProductRepository productRepository;
-
-    public OrderServiceImpl(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository) {
-        this.orderRepository = orderRepository;
-        this.customerRepository = customerRepository;
-        this.productRepository = productRepository;
-    }
+    private final OrderItemRepository orderItemRepository;
 
     @Override
     public List<Order> getAllOrders() {
-        return orderRepository.findAll();
+        return orderRepository.findAllWithItemsAndProducts();
     }
 
     @Override
@@ -78,47 +74,60 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public void addToOrder(Long orderId, OrderItem orderItem) {
-        Order order = getOrderById(orderId);
-        order.getOrderItems().add(orderItem);
-        order.setTotal(calculateTotal(order.getOrderItems()));
+        Order order = orderRepository.findByIdFetchItems(orderId).orElseThrow();
+
+        order.addItem(orderItem);
+
+        BigDecimal total = calculateTotal(orderId);
+        order.setTotal(total);
+
         orderRepository.save(order);
-        log.info("Added order item: {}", orderItem);
     }
 
     @Override
+    @Transactional
     public void emptyOrder(Long orderId) {
-        Order order = getOrderById(orderId);
-        order.getOrderItems().removeAll(order.getOrderItems());
-        order.setTotal(calculateTotal(order.getOrderItems()));
+        // Удаляем все позиции одним запросом — без инициализации orderItems
+        orderItemRepository.deleteByOrderId(orderId);
+
+        // Сбрасываем итог и сохраняем заказ
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found: " + orderId));
+        order.setTotal(BigDecimal.ZERO);
         orderRepository.save(order);
-        log.info("Emptied order: {}", order);
+
+        log.info("Emptied order: {}", orderId);
+    }
+
+    @Override
+    @Transactional
+    public Order getOrCreateUnpaidOrder(Long customerId) {
+        return orderRepository.findByCustomerIdAndStatusFetchItems(customerId, OrderStatus.UNPAID)
+                .orElseGet(() -> orderRepository.save(
+                        Order.builder()
+                                .customer(Customer.builder().id(customerId).build())
+                                .status(OrderStatus.UNPAID)
+                                .orderItems(new ArrayList<>())
+                                .total(BigDecimal.ZERO)
+                                .build()
+                ));
+    }
+
+    @Override
+    public Optional<Order> getUnpaidOrder(Long customerId) {
+        return orderRepository.findFirstByCustomerIdAndStatusOrderByIdDesc(customerId, OrderStatus.UNPAID);
     }
 
     /**
      * Calculates total order price.
      *
-     * @param items items of the {@link Order}.
+     * @param orderId id of the {@link Order} to be recalculated.
      * @return total price.
      */
-    private BigDecimal calculateTotal(List<OrderItem> items) {
-        BigDecimal total = BigDecimal.ZERO;
-        if (items == null) {
-            return total;
-        }
-        for (OrderItem item : items) {
-            BigDecimal price = item.getPrice();
-            if (price == null) {
-                price = BigDecimal.ZERO;
-            }
-            Integer quantity = item.getQuantity();
-            if (quantity == null) {
-                quantity = 0;
-            }
-            BigDecimal line = price.multiply(BigDecimal.valueOf(quantity));
-            total = total.add(line);
-        }
-        return total;
+    private BigDecimal calculateTotal(Long orderId) {
+        return orderItemRepository.calcTotalByOrderId(orderId);
     }
 
 }

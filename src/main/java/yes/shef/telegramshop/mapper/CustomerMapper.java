@@ -18,6 +18,7 @@ public class CustomerMapper {
     public CustomerDto customerToCustomerDto(Customer customer) {
         return CustomerDto.builder()
                 .id(customer.getId())
+                .telegramId(customer.getTelegramId())
                 .firstName(customer.getFirstName())
                 .secondName(customer.getSecondName())
                 .username(customer.getUsername())

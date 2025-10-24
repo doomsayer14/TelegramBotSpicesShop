@@ -32,6 +32,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer createCustomer(CustomerDto customerDto) {
         Customer customer = Customer.builder()
+                .telegramId(customerDto.getTelegramId())
                 .firstName(customerDto.getFirstName())
                 .secondName(customerDto.getSecondName())
                 .username(customerDto.getUsername())
@@ -47,6 +48,13 @@ public class CustomerServiceImpl implements CustomerService {
         return customerRepository.findById(customerId)
                 .orElseThrow(() ->
                         new CustomerNotFoundException("Customer can't be found for id = " + customerId));
+    }
+
+    @Override
+    public Customer getCustomerByTelegramId(Long telegramId) {
+        return customerRepository.findCustomerByTelegramId(telegramId).
+                orElseThrow(() ->
+                        new CustomerNotFoundException("Customer can't be found for telegramId = " + telegramId));
     }
 
     @Override

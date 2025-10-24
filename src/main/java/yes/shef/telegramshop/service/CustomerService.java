@@ -2,7 +2,6 @@ package yes.shef.telegramshop.service;
 
 import yes.shef.telegramshop.dto.CustomerDto;
 import yes.shef.telegramshop.entity.Customer;
-import yes.shef.telegramshop.entity.Product;
 
 import java.util.List;
 
@@ -12,7 +11,7 @@ import java.util.List;
 public interface CustomerService {
 
     /**
-     * Finds all the customers from DB.
+     * Finds all the {@link Customer} from DB.
      *
      * @return list of all customers.
      */
@@ -27,7 +26,7 @@ public interface CustomerService {
     Customer createCustomer(CustomerDto customerDto);
 
     /**
-     * Get customer by id.
+     * Get {@link Customer} by id.
      *
      * @param customerId id of customer to be got.
      * @return customer with specified id.
@@ -35,7 +34,14 @@ public interface CustomerService {
     Customer getCustomerById(Long customerId);
 
     /**
-     * Deletes customer by id.
+     * Get {@link Customer} by telegramId.
+     * @param telegramId telegramId of customer to be got.
+     * @return customer with specified telegramId.
+     */
+    Customer getCustomerByTelegramId(Long telegramId);
+
+    /**
+     * Deletes {@link Customer} by id.
      *
      * @param customerId id of customer to be deleted.
      * @return customer product.

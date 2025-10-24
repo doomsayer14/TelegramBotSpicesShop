@@ -46,14 +46,14 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
             }
 
             switch (messageText) {
-                case Commands.START_COMMAND -> telegramService.sendStartMenu(chatId, Commands.START_MESSAGE);
+                case Commands.START_COMMAND -> telegramService.sendStartMenu(update, Commands.START_MESSAGE);
                 case Commands.CATALOGUE_COMMAND -> telegramService.sendCatalogue(chatId);
                 case Commands.MY_CART_COMMAND -> telegramService.sendCart(chatId);
                 case Commands.TERMS_OF_USE_COMMAND ->
                         telegramService.sendMessage(chatId, Commands.TERMS_OF_USE_MESSAGE);
                 case Commands.ABOUT_ME_COMMAND -> telegramService.sendMessage(chatId, Commands.ABOUT_ME_MESSAGE);
                 case Commands.GO_TO_MAIN_MENU_COMMAND ->
-                        telegramService.sendStartMenu(chatId, Commands.GO_TO_MAIN_MENU_MESSAGE);
+                        telegramService.sendStartMenu(update, Commands.GO_TO_MAIN_MENU_MESSAGE);
                 default -> telegramService.sendMessage(chatId, Commands.DEFAULT_ANSWER);
             }
         }

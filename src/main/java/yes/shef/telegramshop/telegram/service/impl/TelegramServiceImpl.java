@@ -1,6 +1,7 @@
 package yes.shef.telegramshop.telegram.service.impl;
 
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +12,8 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -18,13 +21,20 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
+import yes.shef.telegramshop.dto.CustomerDto;
+import yes.shef.telegramshop.entity.Customer;
+import yes.shef.telegramshop.entity.Order;
+import yes.shef.telegramshop.entity.OrderItem;
 import yes.shef.telegramshop.entity.Product;
+import yes.shef.telegramshop.service.CustomerService;
+import yes.shef.telegramshop.service.OrderService;
 import yes.shef.telegramshop.service.ProductService;
 import yes.shef.telegramshop.telegram.service.TelegramService;
 import yes.shef.telegramshop.util.Commands;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +43,7 @@ import java.util.List;
  * with telegram.
  */
 @Service
+@RequiredArgsConstructor
 public class TelegramServiceImpl implements TelegramService {
 
     private static final Logger log = LoggerFactory.getLogger(TelegramServiceImpl.class);
@@ -45,11 +56,10 @@ public class TelegramServiceImpl implements TelegramService {
     private TelegramClient telegramClient;
 
     private final ProductService productService;
+    private final CustomerService customerService;
+    private final OrderService orderService;
 
 
-    public TelegramServiceImpl(ProductService productService) {
-        this.productService = productService;
-    }
 
     /**
      * Need this to be sure that @Value will be instantiated before it will be used.
@@ -92,13 +102,20 @@ public class TelegramServiceImpl implements TelegramService {
         executeMessage(sendMessage);
     }
 
-
-
     @Override
-    public void sendStartMenu(Long chatId, String message) {
+    public void sendStartMenu(Update update, String message) {
+        if (message.equals(Commands.START_MESSAGE)) {
+            User user = update.getMessage().getFrom();
+            customerService.createCustomer(CustomerDto.builder()
+                    .telegramId(update.getMessage().getFrom().getId())
+                    .firstName(user.getFirstName())
+                    .secondName(user.getLastName())
+                    .username(user.getUserName())
+                    .build());
+        }
         SendMessage sendMessage = SendMessage.builder()
                 .text(message)
-                .chatId(chatId)
+                .chatId(update.getMessage().getChatId())
                 .build();
 
         List<KeyboardRow> keyboardRowList = List.of(
@@ -130,6 +147,9 @@ public class TelegramServiceImpl implements TelegramService {
                 keyboardRow = new KeyboardRow();
             }
         }
+        if (!keyboardRow.isEmpty()) {
+            keyboardRowList.add(keyboardRow);
+        }
         keyboardRowList.add(new KeyboardRow(Commands.GO_TO_MAIN_MENU_COMMAND));
 
 
@@ -143,12 +163,30 @@ public class TelegramServiceImpl implements TelegramService {
     }
 
     public void sendCart(Long chatId) {
-        SendMessage sendMessage = SendMessage.builder()
-                .text("")
+        Customer customer = customerService.getCustomerByTelegramId(chatId);
+
+        var optionalCart = orderService.getUnpaidOrder(customer.getId());
+        if (optionalCart.isEmpty() || optionalCart.get().getOrderItems().isEmpty()) {
+            executeMessage(SendMessage.builder()
+                    .chatId(chatId)
+                    .text("🛒 Ваш кошик порожній.")
+                    .build());
+            return;
+        }
+
+        Order cart = optionalCart.get();
+        String text = buildCartText(cart);
+
+        SendMessage msg = SendMessage.builder()
                 .chatId(chatId)
+                .text(text)
+                .parseMode("Markdown")
+                .replyMarkup(buildCartActionsKeyboard(cart.getId()))
                 .build();
-        executeMessage(sendMessage);
+
+        executeMessage(msg);
     }
+
 
     @Override
     public void sendMessage(Long chatId, String message) {
@@ -191,6 +229,7 @@ public class TelegramServiceImpl implements TelegramService {
 
     /**
      * Name, description and price for {@link Product}.
+     *
      * @param product {@link Product} which needs to be described.
      * @return full text about {@link Product}.
      */
@@ -230,12 +269,37 @@ public class TelegramServiceImpl implements TelegramService {
     }
 
 
+    private String buildCartText(Order cart) {
+        StringBuilder sb = new StringBuilder("🛒 *Ваш кошик:*\n");
+        BigDecimal total = BigDecimal.ZERO;
+        int i = 1;
+
+        for (OrderItem item : cart.getOrderItems()) {
+            String name = item.getProduct().getName();
+            int qty = item.getQuantity();
+            BigDecimal price = item.getPrice();                  // цена за 1 шт.
+            BigDecimal line = price.multiply(BigDecimal.valueOf(qty));
+            total = total.add(line);
+
+            sb.append(i++).append(") ").append(name)
+                    .append(" — ").append(qty).append(" шт. × ")
+                    .append(price).append(" ₴ = ")
+                    .append(line).append(" ₴\n");
+        }
+        sb.append("--------------------------\n")
+                .append("*Разом:* ").append(total).append(" ₴");
+
+        return sb.toString();
+    }
+
+
     /**
      * Builds menu like
      * ➖ 1 ➕
      * 🛒 Додати
+     *
      * @param productId {@link Product} which needs keyboard.
-     * @param quantity quantity of {@link Product} to
+     * @param quantity  quantity of {@link Product} to
      * @return ready inline keyboard.
      */
     private InlineKeyboardMarkup buildQuantityInlineKeyboard(Long productId, int quantity) {
@@ -277,10 +341,28 @@ public class TelegramServiceImpl implements TelegramService {
         return new InlineKeyboardMarkup(rows);
     }
 
+    private InlineKeyboardMarkup buildCartActionsKeyboard(Long orderId) {
+        InlineKeyboardButton clearBtn = InlineKeyboardButton.builder()
+                .text("🧹 Очистити кошик")
+                .callbackData("CART_CLEAR:" + orderId)
+                .build();
+
+        InlineKeyboardButton checkoutBtn = InlineKeyboardButton.builder()
+                .text("✅ Оформити замовлення")
+                .callbackData("CART_CHECKOUT:" + orderId)
+                .build();
+
+        InlineKeyboardRow row = new InlineKeyboardRow(clearBtn, checkoutBtn);
+
+        return InlineKeyboardMarkup.builder()
+                .keyboardRow(row)
+                .build();
+    }
 
 
     /**
      * Sends text reply to user.
+     *
      * @param sendMessage reply to a user.
      */
     private void executeMessage(SendMessage sendMessage) {
@@ -293,6 +375,7 @@ public class TelegramServiceImpl implements TelegramService {
 
     /**
      * Sends photo reply to user.
+     *
      * @param sendPhoto reply to a user.
      */
     private void executeMessage(SendPhoto sendPhoto) {

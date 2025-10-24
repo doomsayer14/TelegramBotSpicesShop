@@ -15,6 +15,7 @@ import yes.shef.telegramshop.entity.Customer;
 @Builder
 public class CustomerDto {
     private Long id;
+    private Long telegramId;
     private String firstName;
     private String secondName;
     private String username;

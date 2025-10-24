@@ -1,5 +1,6 @@
 package yes.shef.telegramshop.telegram.service;
 
+import org.telegram.telegrambots.meta.api.objects.Update;
 import yes.shef.telegramshop.entity.Product;
 
 public interface TelegramService {
@@ -14,10 +15,10 @@ public interface TelegramService {
     /**
      * Reacts on command "/start".
      *
-     * @param chatId  in which chat this message should be sent.
+     * @param update  update from user.
      * @param message message to be sent.
      */
-    void sendStartMenu(Long chatId, String message);
+    void sendStartMenu(Update update, String message);
 
     /**
      * @param chatId in which chat this message should be sent.

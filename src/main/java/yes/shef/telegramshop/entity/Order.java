@@ -15,12 +15,14 @@ import java.util.List;
  */
 @Table(name = "orders")
 @Data
+@ToString(exclude = "orderItems")
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Order {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -48,7 +50,16 @@ public class Order {
     @Column
     private Integer novaPoshtaOffice;
 
+    //Телефон отримувача
+    @Column
+    private Integer phoneNumber;
+
     //ФІО отримувача
     @Column
     private String recipient;
+
+    public void addItem(OrderItem item) {
+        item.setOrder(this);
+        this.orderItems.add(item);
+    }
 }

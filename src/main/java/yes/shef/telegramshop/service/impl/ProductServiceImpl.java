@@ -53,10 +53,11 @@ public class ProductServiceImpl implements ProductService {
     public Product updateProduct(ProductDto productDto) {
         Product product = getProductById(productDto.getId());
 
+
         //TODO:update product fields.
 
         log.info("Updating product: {}", product);
-        return productRepository.save(null);
+        return productRepository.save(product);
     }
 
     @Override

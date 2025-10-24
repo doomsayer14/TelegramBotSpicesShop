@@ -1,9 +1,6 @@
 package yes.shef.telegramshop.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,7 +17,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Customer {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true)
+    private Long telegramId;
 
     @Column
     private String firstName;
