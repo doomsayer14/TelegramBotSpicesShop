@@ -10,7 +10,6 @@ import yes.shef.telegramshop.service.ProductService;
 import yes.shef.telegramshop.telegram.service.TelegramService;
 import yes.shef.telegramshop.util.Commands;
 
-import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -32,11 +31,7 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
             String messageText = update.getMessage().getText();
             Long chatId = update.getMessage().getChatId();
 
-            List<Product> productList = productService.getAllProducts();
-
-            Optional<Product> optionalProduct = productList.stream()
-                    .filter(p -> messageText.equalsIgnoreCase(p.getName()))
-                    .findFirst();
+            Optional<Product> optionalProduct = productService.getProductByName(messageText);
 
             if (optionalProduct.isPresent()) {
                 Product product = optionalProduct.get();

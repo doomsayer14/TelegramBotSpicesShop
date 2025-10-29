@@ -9,6 +9,7 @@ import yes.shef.telegramshop.repository.ProductRepository;
 import yes.shef.telegramshop.service.ProductService;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Implementation for {@link ProductService}.
@@ -67,11 +68,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public String getProductNameById(Long productId) {
-        String name = productRepository.findNameById(productId);
-        if (name == null || name.isBlank()) {
-            return "товар";
-        }
-        return name;
+    public Optional<Product> getProductByName(String name) {
+        return productRepository.findByName(name);
     }
+
 }
