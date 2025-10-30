@@ -106,12 +106,15 @@ public class TelegramServiceImpl implements TelegramService {
     public void sendStartMenu(Update update, String message) {
         if (message.equals(Commands.START_MESSAGE)) {
             User user = update.getMessage().getFrom();
-            customerService.createCustomer(CustomerDto.builder()
-                    .telegramId(update.getMessage().getFrom().getId())
-                    .firstName(user.getFirstName())
-                    .secondName(user.getLastName())
-                    .username(user.getUserName())
-                    .build());
+            Long telegramId = user.getId();
+            if (!customerService.existsByTelegramId(telegramId)) {
+                customerService.createCustomer(CustomerDto.builder()
+                        .telegramId(update.getMessage().getFrom().getId())
+                        .firstName(user.getFirstName())
+                        .secondName(user.getLastName())
+                        .username(user.getUserName())
+                        .build());
+            }
         }
         SendMessage sendMessage = SendMessage.builder()
                 .text(message)

@@ -62,4 +62,9 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.deleteById(customerId);
         log.info("Deleting customer: {}", customerId);
     }
+
+    @Override
+    public boolean existsByTelegramId(Long telegramId) {
+        return customerRepository.existsCustomerByTelegramId(telegramId);
+    }
 }

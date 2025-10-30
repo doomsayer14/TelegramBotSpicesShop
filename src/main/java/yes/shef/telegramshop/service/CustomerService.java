@@ -47,4 +47,11 @@ public interface CustomerService {
      * @return customer product.
      */
     void deleteCustomerById(Long customerId);
+
+    /**
+     * Checks whether {@link Customer} exists or not.
+     * @param telegramId telegram ID of {@link Customer}.
+     * @return true if exists, false if not.
+     */
+    boolean existsByTelegramId(Long telegramId);
 }
