@@ -20,10 +20,15 @@ public interface TelegramService {
      */
     void sendStartMenu(Update update, String message);
 
+    void sendCategoryMenu(Long chatId);
+
     /**
-     * @param chatId in which chat this message should be sent.
+     * Sends catalogue by specified {@link yes.shef.telegramshop.entity.enums.ProductType}.
+     *
+     * @param messageText {@link yes.shef.telegramshop.entity.enums.ProductType}.
+     * @param chatId      in which chat this message should be sent.
      */
-    void sendCatalogue(Long chatId);
+    void sendCatalogue(String messageText, Long chatId);
 
     /**
      * Sends actual user's cart.

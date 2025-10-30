@@ -20,25 +20,31 @@ public final class Commands {
             "\n" +
             "Тут ви можете обрати набори спецій, які імпонуватимуть саме вам і чарівний YESChef-бот допоможе ✨";
 
-    public static final String CATALOGUE_COMMAND = "Каталог товарів";
+    public static final String CATALOGUE_COMMAND = "Каталог товарів.";
 
-    public static final String MY_CART_COMMAND = "Мій кошик";
+    public static final String MY_CART_COMMAND = "Мій кошик.";
 
-    public static final String TERMS_OF_USE_COMMAND = "Правила доставки";
+    public static final String TERMS_OF_USE_COMMAND = "Правила доставки.";
 
     public static final String TERMS_OF_USE_MESSAGE = "Правила доставки оферта договір бла бла бла";
 
-    public static final String ABOUT_ME_COMMAND = "Про мене";
+    public static final String ABOUT_ME_COMMAND = "Про мене.";
 
-    public static final String ABOUT_ME_MESSAGE = "Текст про мене";
+    public static final String ABOUT_ME_MESSAGE = "Текст про мене.";
 
     public static final String DEFAULT_ANSWER = "Я вас не зрозумів.";
 
-    public static final String GO_TO_MAIN_MENU_COMMAND = "До головного меню";
+    public static final String GO_TO_MAIN_MENU_COMMAND = "До головного меню.";
 
     public static final String GO_TO_MAIN_MENU_MESSAGE = "\uD83E\uDD51";
 
-    public static final String CATALOGUE_HEADER_MESSAGE = "Тут ви можете ознайомитись з каталогом товарів⤵️";
+    public static final String PRODUCT_TYPE_MESSAGE = "Оберіть категорію товарів⤵️.";
+
+    public static final String CATALOGUE_HEADER_MESSAGE = "Тут ви можете ознайомитись з каталогом товарів⤵️.";
 
     public static final String UNKNOWN_ACTION_MESSAGE = "Невідома дія!";
+
+    public static final String SPICE_MESSAGE = "Спеції.";
+
+    public static final String BOX_MESSAGE = "Бокси.";
 }

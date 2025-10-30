@@ -26,6 +26,7 @@ import yes.shef.telegramshop.entity.Customer;
 import yes.shef.telegramshop.entity.Order;
 import yes.shef.telegramshop.entity.OrderItem;
 import yes.shef.telegramshop.entity.Product;
+import yes.shef.telegramshop.entity.enums.ProductType;
 import yes.shef.telegramshop.service.CustomerService;
 import yes.shef.telegramshop.service.OrderService;
 import yes.shef.telegramshop.service.ProductService;
@@ -39,8 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Actually not a class for business logic but for some methods for working directly
- * with telegram.
+ * Class for working with telegram API.
  */
 @Service
 @RequiredArgsConstructor
@@ -131,9 +131,29 @@ public class TelegramServiceImpl implements TelegramService {
         executeMessage(sendMessage);
     }
 
-    public void sendCatalogue(Long chatId) {
+    @Override
+    public void sendCategoryMenu(Long chatId) {
+        List<KeyboardRow> keyboardRowList = new ArrayList<>();
 
-        List<Product> productList = productService.getAllProducts();
+        KeyboardRow keyboardRow = new KeyboardRow();
+        keyboardRow.add(Commands.SPICE_MESSAGE);
+        keyboardRow.add(Commands.BOX_MESSAGE);
+        keyboardRowList.add(keyboardRow);
+
+        keyboardRowList.add(new KeyboardRow(Commands.GO_TO_MAIN_MENU_COMMAND));
+
+        SendMessage sendMessage = SendMessage.builder()
+                .text(Commands.PRODUCT_TYPE_MESSAGE)
+                .chatId(chatId)
+                .replyMarkup(new ReplyKeyboardMarkup(keyboardRowList))
+                .build();
+
+        executeMessage(sendMessage);
+    }
+
+    @Override
+    public void sendCatalogue(String messageText, Long chatId) {
+        List<Product> productList = productService.getProductsByProductType(messageText);
 
         List<KeyboardRow> keyboardRowList = new ArrayList<>();
         KeyboardRow keyboardRow = new KeyboardRow();
@@ -267,7 +287,6 @@ public class TelegramServiceImpl implements TelegramService {
         }
         return caption;
     }
-
 
     private String buildCartText(Order cart) {
         StringBuilder sb = new StringBuilder("🛒 *Ваш кошик:*\n");

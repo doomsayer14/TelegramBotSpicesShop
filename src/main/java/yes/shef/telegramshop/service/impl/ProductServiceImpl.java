@@ -4,9 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import yes.shef.telegramshop.dto.ProductDto;
 import yes.shef.telegramshop.entity.Product;
+import yes.shef.telegramshop.entity.enums.ProductType;
 import yes.shef.telegramshop.exception.ProductNotFoundException;
 import yes.shef.telegramshop.repository.ProductRepository;
 import yes.shef.telegramshop.service.ProductService;
+import yes.shef.telegramshop.util.Commands;
 
 import java.util.List;
 import java.util.Optional;
@@ -70,6 +72,14 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Optional<Product> getProductByName(String name) {
         return productRepository.findByName(name);
+    }
+
+    @Override
+    public List<Product> getProductsByProductType(String productType) {
+        if (productType.equals(Commands.BOX_MESSAGE)) {
+            return productRepository.findAllByProductType(ProductType.BOX);
+        }
+        return productRepository.findAllByProductType(ProductType.SPICE);
     }
 
 }

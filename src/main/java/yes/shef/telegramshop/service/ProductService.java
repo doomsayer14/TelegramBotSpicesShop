@@ -2,6 +2,7 @@ package yes.shef.telegramshop.service;
 
 import yes.shef.telegramshop.dto.ProductDto;
 import yes.shef.telegramshop.entity.Product;
+import yes.shef.telegramshop.entity.enums.ProductType;
 
 import java.util.List;
 import java.util.Optional;
@@ -57,4 +58,12 @@ public interface ProductService {
      * @return {@link Product} with specified name.
      */
     Optional<Product> getProductByName(String name);
+
+    /**
+     * Get {@link Product} by {@link ProductType}.
+     *
+     * @param productType {@link ProductType} of {@link Product} to be got.
+     * @return {@link List<Product>} with specified {@link ProductType}.
+     */
+    List<Product> getProductsByProductType(String productType);
 }

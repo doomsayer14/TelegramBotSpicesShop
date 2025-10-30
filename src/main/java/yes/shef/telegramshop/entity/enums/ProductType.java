@@ -7,5 +7,5 @@ import yes.shef.telegramshop.entity.Product;
  * {@link ProductType#SPICE} - represents spice.
  */
 public enum ProductType {
-    SPICE
+    SPICE, BOX
 }
